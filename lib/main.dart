@@ -1,7 +1,5 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
-
 import 'model/todo.dart';
 
 void main() {
@@ -36,23 +34,53 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   List<Todo> todos = [];
+  String newTodoText = "";
+  final TextEditingController _textFieldController = TextEditingController();
 
-  void _addTodo() {
-    setState(() {
-      /// TODO: add user entered data;
-      todos.add(Todo("New Todo"));
-    });
+  Future<void> _displayTextInputDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('New Todo'),
+            content: TextField(
+              onChanged: (value) {
+                setState(() {
+                  newTodoText = value;
+                });
+              },
+              controller: _textFieldController,
+              decoration: const InputDecoration(hintText: "\"Walk the dog\""),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  setState(() {
+                    newTodoText = "";
+                    _textFieldController.clear();
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              ElevatedButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  setState(() {
+                    todos.add(Todo(newTodoText));
+                    newTodoText = "";
+                    _textFieldController.clear();
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ],
+          );
+        });
   }
-
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -71,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
         )
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addTodo,
+        onPressed: () => _displayTextInputDialog(context),
         tooltip: 'New Todo',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
